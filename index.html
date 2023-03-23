@@ -41,91 +41,115 @@
             text-align: center;
         }
 
+            #block2 span {
+                color: white;
+                font-size: large;
+            }
+
         button {
-            border-radius: 10px; /* задаем радиус закругления */
-            background-color: #4CAF50; /* меняем цвет фона кнопки */
-            color: white; /* меняем цвет текста на кнопке */
-            border: none; /* убираем границы */
-            padding: 10px 20px; /* задаем отступы внутри кнопки */
-            text-align: center; /* выравниваем текст по центру */
+            border-radius: 10px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            text-align: center;
             text-decoration: none;
             display: inline-block;
             font-size: 1em;
             margin: 2px 2px;
             cursor: pointer;
-            transition-duration: 0.4s; /* добавляем эффект при наведении на кнопку */
+            transition-duration: 0.4s;
         }
 
-        button:hover {
-            background-color: #555555; /* меняем цвет фона кнопки при наведении */
-        }
+            button:hover {
+                background-color: #555555;
+            }
 
         h2 {
             color: white;
         }
 
-        /* стили для блока правил */
-        #rules {
-            position: absolute;
-            top: 50%;
-            right: 0;
-            padding: 20px;
-            border-radius: 10px; /* задаем радиус закругления углов блока */
-            background-color: #0077FF; /* меняем цвет фона блока */
-            color: white; /* меняем цвет текста в блоке */
-            font-size: 18px;
-            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2); /* добавляем тень блоку */
+        #board-size-select {
+            border-radius: 10px;
+            background-color: #0077FF;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 1em;
+            margin: 2px 2px;
+            cursor: pointer;
+            transition-duration: 0.4s;
         }
-            /* стили для заголовка блока */
-            #rules h2 {
-                text-align: center;
-                margin: 0;
-                padding-bottom: 10px;
-            }
     </style>
 </head>
 <body>
     <canvas id="canvas"></canvas>
     <script src="game.js"></script>
 
-    <!-- блок правил -->
-    <div id="rules">
-        <h2>Правила игры</h2>
-        <div id="rules-text">12321321322131231231231231232131232121331</div> <!-- здесь будет размещаться текст с правилами -->
-    </div>
-
-    <!-- блок 1 -->
     <div id="block1">
         <button onclick="startGame()">Рестарт</button>
         <button onclick="showBlock2()">Меню</button>
     </div>
 
-    <!-- блок 2 -->
     <div id="block2">
         <h2>Режимы игры</h2>
         <button onclick="startGame(1)">Для двоих игроков</button>
         <button onclick="startGame(2)">С компьютером</button>
+        <h2>Настройки</h2>
+        <div>
+            <span>Карта:</span>
+            <select id="board-size-select">
+                <option value="small">Маленькая</option>
+                <option value="medium">Средняя</option>
+                <option value="big">Большая</option>
+            </select>
+        </div>
         <div id="block1">
             <button onclick="hideBlock2()">Закрыть</button>
         </div>
     </div>
 
-    <script>
-        // функции для блоков
-        function restartGame() {
-            console.log("Restart");
-        }
 
+    <script>
         function showBlock2() {
             document.getElementById("block2").style.display = "block";
+            document.getElementById("rules").style.display = "block";
         }
 
         function hideBlock2() {
             document.getElementById("block2").style.display = "none";
+            document.getElementById("rules").style.display = "none";
         }
+    </script>
 
-        function switchGameMode(mode) {
-            console.log("Switch game mode: " + mode);
+    <script>
+        const boardSizeSelect = document.getElementById('board-size-select');
+
+        boardSizeSelect.addEventListener('change', () => {
+            changeBoardSize();
+        });
+
+        function changeBoardSize() {
+            switch (boardSizeSelect.value) {
+                case "big":
+                    boardWidth = 21;
+                    boardHeight = 21;
+                    break;
+                case "medium":
+                    boardWidth = 15;
+                    boardHeight = 15;
+                    break;
+                case "small":
+                    boardWidth = 11;
+                    boardHeight = 11;
+                    break;
+                default:
+                    console.log('Undefined');
+            }
+            startGame();
         }
     </script>
 </body>

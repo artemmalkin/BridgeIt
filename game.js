@@ -1,9 +1,11 @@
-﻿let canvas = document.getElementById('canvas');
+﻿let popSound = new sound("./sound/pop.mp3");
+let canvas = document.getElementById('canvas');
 let ctx = canvas.getContext('2d');
 
 let fontSize = 32;
 
 let currentScene = "game";
+let currentGameMode = 1;
 
 const firstPlayerColor = "blue";
 const secondPlayerColor = "red";
@@ -12,8 +14,6 @@ let playerWinner;
 
 let currentPlayer = firstPlayerColor;
 let pressedCell = null;
-
-let currentGameMode = 1;
 
 let CELL_SIZE;
 let boardWidth = 11;
@@ -32,7 +32,6 @@ drawCurrentScene();
 window.addEventListener('resize', drawCurrentScene);
 canvas.addEventListener('click', makeMove);
 
-// NEW VERSION
 function checkAndUpdateBoardMatrix(row, col) {
     const xDiff = pressedCell.x - col;
     const yDiff = pressedCell.y - row;
@@ -50,7 +49,6 @@ function checkAndUpdateBoardMatrix(row, col) {
     return isDone;
 }
 
-// NEW VERSION
 function updateBoardMatrix(r1, c1, r2, c2) {
     if (boardMatrix[r1][c1].status === 0) {
         boardMatrix[r1][c1].status = currentPlayer;
@@ -72,38 +70,39 @@ function makeMove() {
                 // handle first click
                 boardMatrix[row][col].isPressed = true;
                 pressedCell = boardMatrix[row][col];
+                popSound.play();
             } else if (pressedCell === boardMatrix[row][col]) {
                 // cancel the first click
                 boardMatrix[row][col].isPressed = false;
                 pressedCell = null;
             } else if (pressedCell !== null && boardMatrix[row][col].status === currentPlayer) {
                 // OLD VERSION
-               /* let isDone = false;
-                if ((pressedCell.x - col) === -2 && pressedCell.y === row) {
-                    if (boardMatrix[row][col - 1].status === 0) {
-                        boardMatrix[row][col - 1].status = currentPlayer;
-                        boardMatrix[row][col - 2].isPressed = false;
-                        isDone = true;
-                    }
-                } else if ((pressedCell.x - col) === 2 && pressedCell.y === row) {
-                    if (boardMatrix[row][col + 1].status === 0) {
-                        boardMatrix[row][col + 1].status = currentPlayer;
-                        boardMatrix[row][col + 2].isPressed = false;
-                        isDone = true;
-                    }
-                } else if (pressedCell.x === col && (pressedCell.y - row) === -2) {
-                    if (boardMatrix[row - 1][col].status === 0) {
-                        boardMatrix[row - 1][col].status = currentPlayer;
-                        boardMatrix[row - 2][col].isPressed = false;
-                        isDone = true;
-                    }
-                } else if (pressedCell.x === col && (pressedCell.y - row) === 2) {
-                    if (boardMatrix[row + 1][col].status === 0) {
-                        boardMatrix[row + 1][col].status = currentPlayer;
-                        boardMatrix[row + 2][col].isPressed = false;
-                        isDone = true;
-                    }
-                }*/
+                /* let isDone = false;
+                 if ((pressedCell.x - col) === -2 && pressedCell.y === row) {
+                     if (boardMatrix[row][col - 1].status === 0) {
+                         boardMatrix[row][col - 1].status = currentPlayer;
+                         boardMatrix[row][col - 2].isPressed = false;
+                         isDone = true;
+                     }
+                 } else if ((pressedCell.x - col) === 2 && pressedCell.y === row) {
+                     if (boardMatrix[row][col + 1].status === 0) {
+                         boardMatrix[row][col + 1].status = currentPlayer;
+                         boardMatrix[row][col + 2].isPressed = false;
+                         isDone = true;
+                     }
+                 } else if (pressedCell.x === col && (pressedCell.y - row) === -2) {
+                     if (boardMatrix[row - 1][col].status === 0) {
+                         boardMatrix[row - 1][col].status = currentPlayer;
+                         boardMatrix[row - 2][col].isPressed = false;
+                         isDone = true;
+                     }
+                 } else if (pressedCell.x === col && (pressedCell.y - row) === 2) {
+                     if (boardMatrix[row + 1][col].status === 0) {
+                         boardMatrix[row + 1][col].status = currentPlayer;
+                         boardMatrix[row + 2][col].isPressed = false;
+                         isDone = true;
+                     }
+                 }*/
 
                 // NEW VERSION
                 // if player make the right move - handle it
@@ -140,7 +139,7 @@ function makeMove() {
                                 checkNeighbors(boardMatrix[y2][x2]);
                             }
                         });
-                        // working bad
+                        // working bad, changed 'for' to 'forEach'
                         /*for (let dir in cellDirs) {
                             const x = cellDirs[dir][0];
                             const y = cellDirs[dir][2];
@@ -245,7 +244,7 @@ function drawBoard(boardMatrix, x, y, width) {
     const delta = CELL_SIZE * ((boardWidth - 1) / 2)
     let dX = x - delta
     let dY = y - delta
-    
+
     for (let row = 0; row < boardMatrix.length; row++) {
         for (let col = 0; col < boardMatrix[0].length; col++) {
             let currentColor;
@@ -265,30 +264,10 @@ function drawBoard(boardMatrix, x, y, width) {
                         drawLine(ctx, boardMatrix[row][col].x * CELL_SIZE + dX, (boardMatrix[row][col].y - 1) * CELL_SIZE + dY,
                             boardMatrix[row][col].x * CELL_SIZE + dX, (boardMatrix[row][col].y + 1) * CELL_SIZE + dY, CELL_SIZE * 0.2, currentColor)
                     }
-                    // OLD VERSION
-                    /*if (currentColor === firstPlayerColor) {
-                        if (col % 2 === 0) {
-                            drawLine(ctx, (boardMatrix[row][col].x - 1) * CELL_SIZE + dX, boardMatrix[row][col].y * CELL_SIZE + dY, (boardMatrix[row][col].x + 1) * CELL_SIZE + dX, boardMatrix[row][col].y * CELL_SIZE + dY, CELL_SIZE * 0.2, currentColor)
-                        } else {
-                            drawLine(ctx, boardMatrix[row][col].x * CELL_SIZE + dX, (boardMatrix[row][col].y - 1) * CELL_SIZE + dY, boardMatrix[row][col].x * CELL_SIZE + dX, (boardMatrix[row][col].y + 1) * CELL_SIZE + dY, CELL_SIZE * 0.2, currentColor)
-                        }
-                    } else {
-                        if (col % 2 !== 0) {
-                            drawLine(ctx, (boardMatrix[row][col].x - 1) * CELL_SIZE + dX, boardMatrix[row][col].y * CELL_SIZE + dY, (boardMatrix[row][col].x + 1) * CELL_SIZE + dX, boardMatrix[row][col].y * CELL_SIZE + dY, CELL_SIZE * 0.2, currentColor)
-                        } else {
-                            drawLine(ctx, boardMatrix[row][col].x * CELL_SIZE + dX, (boardMatrix[row][col].y - 1) * CELL_SIZE + dY, boardMatrix[row][col].x * CELL_SIZE + dX, (boardMatrix[row][col].y + 1) * CELL_SIZE + dY, CELL_SIZE * 0.2, currentColor)
-                        }
-                    }*/
                 } else {
                     const circleSize = boardMatrix[row][col].isPressed ? CELL_SIZE * 0.2 : CELL_SIZE * 0.3;
                     drawCircle(ctx, dX + CELL_SIZE * col, dY + CELL_SIZE * row, circleSize, currentColor)
-                    // OLD VERSION
-                    /*if (boardMatrix[row][col].isPressed) {
-                        drawCircle(ctx, dX + CELL_SIZE * col, dY + CELL_SIZE * row, CELL_SIZE * 0.2, currentColor)
-                    } else {
-                        drawCircle(ctx, dX + CELL_SIZE * col, dY + CELL_SIZE * row, CELL_SIZE * 0.3, currentColor)
-                    }*/
-                    
+
                 }
             }
         }
@@ -366,27 +345,23 @@ function drawSceneGame() {
 
     drawBoard(boardMatrix, boardData["x"], boardData["y"], boardData["width"])
 
-    /*if (isPortrait()) {
-        drawSquare(ctx, 0, canvas.height * 0.8, canvas.width, canvas.height * 0.2, 10, 'grey')
-    } else {
-        let blockWidth = canvas.width * 0.2;
-        drawSquare(ctx, canvas.width - blockWidth, canvas.height * 0.1, blockWidth, canvas.height * 0.8, 10, 'grey')
-        drawText(ctx, "ПРАВИЛА ИГРЫ:\nsdasd", canvas.width - blockWidth, canvas.height * 0.1, "bold 12px sans-serif", currentPlayer)
-    }*/
-
-    drawText(ctx, `Ход игрока: ${currentPlayer}`, fontSize, fontSize, `bold ${fontSize}px sans-serif`, currentPlayer)
+    drawText(ctx, `Режим: на двоих`, canvas.width * 0.01, fontSize, `bold ${fontSize}px sans-serif`, currentPlayer)
+    drawText(ctx, `Ход игрока: ${currentPlayer}`, canvas.width * 0.01, fontSize * 2, `bold ${fontSize}px sans-serif`, currentPlayer)
+    drawText(ctx, "Подсказка: ", canvas.width * 0.01, canvas.height - fontSize * 3, `${fontSize}px sans-serif`, currentPlayer)
+    drawText(ctx, "Соедини противоположные", canvas.width * 0.01, canvas.height - fontSize*2, `${fontSize}px sans-serif`, currentPlayer)
+    drawText(ctx, "стороны своего цвета, чтобы победить.", canvas.width * 0.01, canvas.height - fontSize, `${fontSize}px sans-serif`, currentPlayer)
 }
 
 function drawSceneGameWin() {
     drawSceneGame();
-    drawText(ctx, `Победил игрок: ${playerWinner}`, fontSize, fontSize * 2, `bold ${fontSize}px sans-serif`, playerWinner);
+    drawText(ctx, `Победил игрок: ${playerWinner}`, canvas.width * 0.01, fontSize * 3, `bold ${fontSize}px sans-serif`, playerWinner);
 }
 
 function drawCurrentScene() {
     canvas.width = canvas.offsetWidth;
     canvas.height = canvas.offsetHeight;
 
-    fontSize = Math.floor(Math.max(canvas.width, canvas.height) * 0.03);
+    fontSize = Math.floor(Math.max(canvas.width, canvas.height) * 0.02);
 
     // draw background color
     ctx.fillStyle = 'white';
@@ -415,7 +390,7 @@ function startGame(gameMode = null) {
         case 1: // Two players
             currentScene = 'game';
             boardMatrix = createBoardMatrix(boardWidth, boardHeight);
-            currentPlayer = (Math.floor(Math.random()*2) === 1) ? firstPlayerColor : secondPlayerColor;
+            currentPlayer = (Math.floor(Math.random() * 2) === 1) ? firstPlayerColor : secondPlayerColor;
             pressedCell = null;
             drawCurrentScene();
             break;
@@ -436,4 +411,20 @@ function startGame(gameMode = null) {
 
 function isPortrait() {
     return canvas.width < canvas.height;
+}
+
+function sound(src) {
+    this.sound = document.createElement("audio");
+    this.sound.src = src;
+    this.sound.setAttribute("preload", "auto");
+    this.sound.setAttribute("controls", "none");
+    this.sound.style.display = "none";
+    this.sound.volume = 0.3;
+    document.body.appendChild(this.sound);
+    this.play = function () {
+        this.sound.play();
+    }
+    this.stop = function () {
+        this.sound.pause();
+    }
 }
