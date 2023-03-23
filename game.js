@@ -292,9 +292,6 @@ function winPlayer() {
 }
 
 function drawSceneGame() {
-    canvas.width = canvas.offsetWidth;
-    canvas.height = canvas.offsetHeight;
-
     boardData["width"] = Math.min(canvas.width, canvas.height) * 0.8;
     boardData["x"] = canvas.width / 2;
     boardData["y"] = canvas.height / 2;
@@ -316,6 +313,14 @@ function drawSceneGameWin() {
 }
 
 function drawCurrentScene() {
+    canvas.width = canvas.offsetWidth;
+    canvas.height = canvas.offsetHeight;
+
+    // draw background color
+    ctx.fillStyle = 'white';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    // draw current scene
     switch (currentScene) {
         case 'game':
             drawSceneGame();
