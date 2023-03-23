@@ -84,6 +84,8 @@
             transition-duration: 0.4s;
         }
     </style>
+    <!-- Yandex Games SDK -->
+    <script src="https://yandex.ru/games/sdk/v2"></script>
 </head>
 <body>
     <canvas id="canvas"></canvas>
@@ -151,6 +153,14 @@
             }
             startGame();
         }
+    </script>
+    <script>
+        YaGames
+            .init()
+            .then(ysdk => {
+                console.log('Yandex SDK initialized');
+                window.ysdk = ysdk;
+            });
     </script>
 </body>
 </html>
