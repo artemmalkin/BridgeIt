@@ -1,6 +1,8 @@
 ﻿let canvas = document.getElementById('canvas');
 let ctx = canvas.getContext('2d');
 
+let fontSize = 32;
+
 let currentScene = "game";
 
 const firstPlayerColor = "blue";
@@ -10,6 +12,8 @@ let playerWinner;
 
 let currentPlayer = firstPlayerColor;
 let pressedCell = null;
+
+let currentGameMode = 1;
 
 let CELL_SIZE;
 let boardWidth = 11;
@@ -61,7 +65,7 @@ function makeMove() {
 
     let row = Math.floor((y - boardData["y"] + boardData["width"] * 0.5) / CELL_SIZE);
     let col = Math.floor((x - boardData["x"] + boardData["width"] * 0.5) / CELL_SIZE);
-
+    console.log("Click " + col + ", " + row);
     if ((row >= 0 && row < boardWidth) && (col >= 0 && col < boardHeight)) {
         if (!boardMatrix[row][col].isLine) {
             if (pressedCell === null && boardMatrix[row][col].status === currentPlayer) {
@@ -117,7 +121,27 @@ function makeMove() {
                     function checkNeighbors(cell) {
                         // check if neighbors connected to bounds
                         cellDirs = [[cell.x - 1, cell.x - 2, cell.y, cell.y], [cell.x + 1, cell.x + 2, cell.y, cell.y], [cell.x, cell.x, cell.y - 1, cell.y - 2], [cell.x, cell.x, cell.y + 1, cell.y + 2]]
-                        for (let dir in cellDirs) {
+
+                        cellDirs.forEach((dir) => {
+                            const x = dir[0];
+                            const y = dir[2];
+                            const x2 = dir[1];
+                            const y2 = dir[3];
+
+                            if ((x < boardWidth && y < boardHeight) && (x >= 0 && y >= 0) && boardMatrix[y][x].status === currentPlayer && !visited.includes(boardMatrix[y2][x2])) {
+                                if (boardMatrix[y2][x2].isConnectedToFirstBound) {
+                                    isConnectedToFirstBound = true;
+                                }
+                                if (boardMatrix[y2][x2].isConnectedToSecondBound) {
+                                    isConnectedToSecondBound = true;
+                                }
+                                visited.push(boardMatrix[y2][x2]);
+                                console.log(x2, y2)
+                                checkNeighbors(boardMatrix[y2][x2]);
+                            }
+                        });
+                        // working bad
+                        /*for (let dir in cellDirs) {
                             const x = cellDirs[dir][0];
                             const y = cellDirs[dir][2];
                             const x2 = cellDirs[dir][1];
@@ -133,7 +157,7 @@ function makeMove() {
                                 visited.push(boardMatrix[y2][x2]);
                                 checkNeighbors(boardMatrix[y2][x2]);
                             }
-                        }
+                        }*/
                     }
 
                     pressedCell = null;
@@ -318,6 +342,23 @@ function winPlayer() {
     currentScene = "gameWin";
 }
 
+function drawGrid(cellSize, cellColor, lineWidth, width, height) {
+    ctx.strokeStyle = cellColor;
+    ctx.lineWidth = lineWidth;
+
+    for (var x = 0; x <= width; x += cellSize) {
+        ctx.moveTo(x, 0);
+        ctx.lineTo(x, height);
+        ctx.stroke();
+    }
+
+    for (var y = 0; y <= height; y += cellSize) {
+        ctx.moveTo(0, y);
+        ctx.lineTo(width, y);
+        ctx.stroke();
+    }
+}
+
 function drawSceneGame() {
     boardData["width"] = Math.min(canvas.width, canvas.height) * 0.8;
     boardData["x"] = canvas.width / 2;
@@ -325,27 +366,33 @@ function drawSceneGame() {
 
     drawBoard(boardMatrix, boardData["x"], boardData["y"], boardData["width"])
 
-    if (isPortrait()) {
+    /*if (isPortrait()) {
         drawSquare(ctx, 0, canvas.height * 0.8, canvas.width, canvas.height * 0.2, 10, 'grey')
     } else {
-        drawSquare(ctx, 0, canvas.height * 0.3, 100, canvas.height * 0.4, 10, 'grey')
-    }
-    
-    drawText(ctx, `Ход игрока: ${currentPlayer}`, 30, 30, "bold 30px sans-serif", currentPlayer)
+        let blockWidth = canvas.width * 0.2;
+        drawSquare(ctx, canvas.width - blockWidth, canvas.height * 0.1, blockWidth, canvas.height * 0.8, 10, 'grey')
+        drawText(ctx, "ПРАВИЛА ИГРЫ:\nsdasd", canvas.width - blockWidth, canvas.height * 0.1, "bold 12px sans-serif", currentPlayer)
+    }*/
+
+    drawText(ctx, `Ход игрока: ${currentPlayer}`, fontSize, fontSize, `bold ${fontSize}px sans-serif`, currentPlayer)
 }
 
 function drawSceneGameWin() {
     drawSceneGame();
-    drawText(ctx, `Победил игрок: ${playerWinner}`, 30, 100, "bold 30px sans-serif", playerWinner);
+    drawText(ctx, `Победил игрок: ${playerWinner}`, fontSize, fontSize * 2, `bold ${fontSize}px sans-serif`, playerWinner);
 }
 
 function drawCurrentScene() {
     canvas.width = canvas.offsetWidth;
     canvas.height = canvas.offsetHeight;
 
+    fontSize = Math.floor(Math.max(canvas.width, canvas.height) * 0.03);
+
     // draw background color
     ctx.fillStyle = 'white';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    drawGrid(40, "#E0E0E0", 1, canvas.width, canvas.height);
 
     // draw current scene
     switch (currentScene) {
@@ -358,6 +405,33 @@ function drawCurrentScene() {
         default:
             console.log('Scene is not exist');
     }
+}
+
+function startGame(gameMode = null) {
+    if (gameMode === null) {
+        gameMode = currentGameMode;
+    }
+    switch (gameMode) {
+        case 1: // Two players
+            currentScene = 'game';
+            boardMatrix = createBoardMatrix(boardWidth, boardHeight);
+            currentPlayer = (Math.floor(Math.random()*2) === 1) ? firstPlayerColor : secondPlayerColor;
+            pressedCell = null;
+            drawCurrentScene();
+            break;
+        case 2: // Computer
+            currentScene = 'game';
+            boardMatrix = createBoardMatrix(boardWidth, boardHeight);
+            currentPlayer = (Math.floor(Math.random() * 2) === 1) ? firstPlayerColor : secondPlayerColor;
+            pressedCell = null;
+            drawCurrentScene();
+            break;
+        default:
+            console.log('Gamemode is not exist');
+    }
+    canvas.removeEventListener('click', makeMove);
+    canvas.addEventListener('click', makeMove);
+    hideBlock2()
 }
 
 function isPortrait() {
