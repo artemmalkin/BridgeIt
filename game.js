@@ -61,8 +61,7 @@ function makeMove() {
 
     let row = Math.floor((y - boardData["y"] + boardData["width"] * 0.5) / CELL_SIZE);
     let col = Math.floor((x - boardData["x"] + boardData["width"] * 0.5) / CELL_SIZE);
-    // FIX BUG: если ставить точки "в воздухе" то соединение с границей не засчитывается.
-    console.log(boardMatrix[row][col].isConnectedToFirstBound, boardMatrix[row][col].isConnectedToSecondBound)
+
     if ((row >= 0 && row < boardWidth) && (col >= 0 && col < boardHeight)) {
         if (!boardMatrix[row][col].isLine) {
             if (pressedCell === null && boardMatrix[row][col].status === currentPlayer) {
@@ -110,13 +109,41 @@ function makeMove() {
                     boardMatrix[row][col].isConnectedToSecondBound = pressedCell.isConnectedToSecondBound || boardMatrix[row][col].isConnectedToSecondBound;
                     boardMatrix[pressedCell.y][pressedCell.x].isConnectedToSecondBound = boardMatrix[row][col].isConnectedToSecondBound;
 
+                    let visited = [];
+                    let isConnectedToFirstBound = false;
+                    let isConnectedToSecondBound = false;
+
+                    checkNeighbors(boardMatrix[row][col]);
+                    function checkNeighbors(cell) {
+                        // check if neighbors connected to bounds
+                        cellDirs = [[cell.x - 1, cell.x - 2, cell.y, cell.y], [cell.x + 1, cell.x + 2, cell.y, cell.y], [cell.x, cell.x, cell.y - 1, cell.y - 2], [cell.x, cell.x, cell.y + 1, cell.y + 2]]
+                        for (let dir in cellDirs) {
+                            const x = cellDirs[dir][0];
+                            const y = cellDirs[dir][2];
+                            const x2 = cellDirs[dir][1];
+                            const y2 = cellDirs[dir][3];
+
+                            if ((x < boardWidth && y < boardHeight) && (x >= 0 && y >= 0) && boardMatrix[y][x].status === currentPlayer && !visited.includes(boardMatrix[y2][x2])) {
+                                if (boardMatrix[y2][x2].isConnectedToFirstBound) {
+                                    isConnectedToFirstBound = true;
+                                }
+                                if (boardMatrix[y2][x2].isConnectedToSecondBound) {
+                                    isConnectedToSecondBound = true;
+                                }
+                                visited.push(boardMatrix[y2][x2]);
+                                checkNeighbors(boardMatrix[y2][x2]);
+                            }
+                        }
+                    }
+
                     pressedCell = null;
 
-                    if (boardMatrix[row][col].isConnectedToFirstBound && boardMatrix[row][col].isConnectedToSecondBound) {
+                    if ((boardMatrix[row][col].isConnectedToFirstBound && boardMatrix[row][col].isConnectedToSecondBound) || (isConnectedToFirstBound && isConnectedToSecondBound)) {
                         playerWinner = currentPlayer;
                         winPlayer();
+                    } else {
+                        switchPlayer();
                     }
-                    switchPlayer();
                 }
             }
         }
