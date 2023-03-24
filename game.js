@@ -47,6 +47,7 @@ window.addEventListener('resize', drawCurrentScene);
 canvas.addEventListener('click', makeMove);
 
 function checkAndUpdateBoardMatrix(row, col) {
+    // if player clicked in limits of available ways of move - call the method updateBoardMatrix()
     const xDiff = pressedCell.x - col;
     const yDiff = pressedCell.y - row;
     let isDone = false;
@@ -64,9 +65,10 @@ function checkAndUpdateBoardMatrix(row, col) {
 }
 
 function updateBoardMatrix(r1, c1, r2, c2) {
+    // if on the way are not have an opponent line - mark this cell as current player's line and shotdown the transaction
     if (boardMatrix[r1][c1].status === 0) {
         boardMatrix[r1][c1].status = currentPlayer;
-        boardMatrix[r2][c2].isPressed = false;
+        boardMatrix[r2][c2].isPressed = false; // transaction are not active
         return true;
     } return false;
 }
@@ -90,13 +92,15 @@ function makeMove() {
                 boardMatrix[row][col].isPressed = false;
                 pressedCell = null;
             } else if (pressedCell !== null && boardMatrix[row][col].status === currentPlayer) {
-                // if player make the right move - handle it
+                // if player choosen move way in available limits - make move, check if neighbors connects to bounds for win, switch player.
                 if (checkAndUpdateBoardMatrix(row, col)) {
+                    // marks pressed cell and current cell as connected to bounds if it that.
                     boardMatrix[row][col].isConnectedToFirstBound = pressedCell.isConnectedToFirstBound || boardMatrix[row][col].isConnectedToFirstBound;
                     boardMatrix[pressedCell.y][pressedCell.x].isConnectedToFirstBound = boardMatrix[row][col].isConnectedToFirstBound;
                     boardMatrix[row][col].isConnectedToSecondBound = pressedCell.isConnectedToSecondBound || boardMatrix[row][col].isConnectedToSecondBound;
                     boardMatrix[pressedCell.y][pressedCell.x].isConnectedToSecondBound = boardMatrix[row][col].isConnectedToSecondBound;
 
+                    // checks all connected cells for connecting to both bounds, if it that - player win.
                     let visited = [];
                     let isConnectedToFirstBound = false;
                     let isConnectedToSecondBound = false;
@@ -141,8 +145,6 @@ function makeMove() {
     drawCurrentScene();
 }
 
-
-
 function createBoardMatrix(width, height) {
     let board = [];
     // set Cells on the boardMatrix
@@ -168,7 +170,7 @@ function createBoardMatrix(width, height) {
         }
         board.push(row);
     }
-    // before start set the based connected cells for both players
+    // before start set the based connected cells on bounds for both players
     for (let j = 0; j < width; j++) {
         if (!board[0][j].isLine) {
             board[0][j].isConnectedToFirstBound = true;
@@ -262,6 +264,7 @@ function winPlayer() {
     currentScene = "gameWin";
 }
 
+// draw background grid
 function drawGrid(cellSize, cellColor, lineWidth, width, height) {
     ctx.strokeStyle = cellColor;
     ctx.lineWidth = lineWidth;
