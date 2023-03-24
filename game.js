@@ -19,6 +19,20 @@ let CELL_SIZE;
 let boardWidth = 11;
 let boardHeight = 11;
 
+class Cell {
+    constructor(x, y, status, isConnectedToFirstBound = false, isConnectedToSecondBound = false, isLine = false, isPressed = false) {
+        this.x = x;
+        this.y = y;
+        this.status = status;
+        this.isLine = isLine;
+        if (!isLine) {
+            this.isConnectedToFirstBound = isConnectedToFirstBound;
+            this.isConnectedToSecondBound = isConnectedToSecondBound;
+            this.isPressed = isPressed;
+        }
+    }
+}
+
 let boardMatrix = createBoardMatrix(boardWidth, boardHeight);
 
 boardData = {
@@ -63,7 +77,7 @@ function makeMove() {
 
     let row = Math.floor((y - boardData["y"] + boardData["width"] * 0.5) / CELL_SIZE);
     let col = Math.floor((x - boardData["x"] + boardData["width"] * 0.5) / CELL_SIZE);
-    console.log("Click " + col + ", " + row);
+
     if ((row >= 0 && row < boardWidth) && (col >= 0 && col < boardHeight)) {
         if (!boardMatrix[row][col].isLine) {
             if (pressedCell === null && boardMatrix[row][col].status === currentPlayer) {
@@ -76,35 +90,6 @@ function makeMove() {
                 boardMatrix[row][col].isPressed = false;
                 pressedCell = null;
             } else if (pressedCell !== null && boardMatrix[row][col].status === currentPlayer) {
-                // OLD VERSION
-                /* let isDone = false;
-                 if ((pressedCell.x - col) === -2 && pressedCell.y === row) {
-                     if (boardMatrix[row][col - 1].status === 0) {
-                         boardMatrix[row][col - 1].status = currentPlayer;
-                         boardMatrix[row][col - 2].isPressed = false;
-                         isDone = true;
-                     }
-                 } else if ((pressedCell.x - col) === 2 && pressedCell.y === row) {
-                     if (boardMatrix[row][col + 1].status === 0) {
-                         boardMatrix[row][col + 1].status = currentPlayer;
-                         boardMatrix[row][col + 2].isPressed = false;
-                         isDone = true;
-                     }
-                 } else if (pressedCell.x === col && (pressedCell.y - row) === -2) {
-                     if (boardMatrix[row - 1][col].status === 0) {
-                         boardMatrix[row - 1][col].status = currentPlayer;
-                         boardMatrix[row - 2][col].isPressed = false;
-                         isDone = true;
-                     }
-                 } else if (pressedCell.x === col && (pressedCell.y - row) === 2) {
-                     if (boardMatrix[row + 1][col].status === 0) {
-                         boardMatrix[row + 1][col].status = currentPlayer;
-                         boardMatrix[row + 2][col].isPressed = false;
-                         isDone = true;
-                     }
-                 }*/
-
-                // NEW VERSION
                 // if player make the right move - handle it
                 if (checkAndUpdateBoardMatrix(row, col)) {
                     boardMatrix[row][col].isConnectedToFirstBound = pressedCell.isConnectedToFirstBound || boardMatrix[row][col].isConnectedToFirstBound;
@@ -139,24 +124,6 @@ function makeMove() {
                                 checkNeighbors(boardMatrix[y2][x2]);
                             }
                         });
-                        // working bad, changed 'for' to 'forEach'
-                        /*for (let dir in cellDirs) {
-                            const x = cellDirs[dir][0];
-                            const y = cellDirs[dir][2];
-                            const x2 = cellDirs[dir][1];
-                            const y2 = cellDirs[dir][3];
-
-                            if ((x < boardWidth && y < boardHeight) && (x >= 0 && y >= 0) && boardMatrix[y][x].status === currentPlayer && !visited.includes(boardMatrix[y2][x2])) {
-                                if (boardMatrix[y2][x2].isConnectedToFirstBound) {
-                                    isConnectedToFirstBound = true;
-                                }
-                                if (boardMatrix[y2][x2].isConnectedToSecondBound) {
-                                    isConnectedToSecondBound = true;
-                                }
-                                visited.push(boardMatrix[y2][x2]);
-                                checkNeighbors(boardMatrix[y2][x2]);
-                            }
-                        }*/
                     }
 
                     pressedCell = null;
@@ -174,17 +141,7 @@ function makeMove() {
     drawCurrentScene();
 }
 
-function Cell(x, y, status, isConnectedToFirstBound = false, isConnectedToSecondBound = false, isLine = false, isPressed = false) {
-    this.x = x;
-    this.y = y;
-    this.status = status;
-    this.isLine = isLine;
-    if (!isLine) {
-        this.isConnectedToFirstBound = isConnectedToFirstBound;
-        this.isConnectedToSecondBound = isConnectedToSecondBound;
-        this.isPressed = isPressed;
-    }
-}
+
 
 function createBoardMatrix(width, height) {
     let board = [];
@@ -294,22 +251,6 @@ function drawText(ctx, text, x, y, font, color) {
     ctx.font = font;
     ctx.fillStyle = color;
     ctx.fillText(text, x, y);
-}
-
-function drawSquare(ctx, x, y, width, height, radius, fillColor) {
-    ctx.beginPath();
-    ctx.moveTo(x + radius, y);
-    ctx.lineTo(x + width - radius, y);
-    ctx.arcTo(x + width, y, x + width, y + radius, radius);
-    ctx.lineTo(x + width, y + height - radius);
-    ctx.arcTo(x + width, y + height, x + width - radius, y + height, radius);
-    ctx.lineTo(x + radius, y + height);
-    ctx.arcTo(x, y + height, x, y + height - radius, radius);
-    ctx.lineTo(x, y + radius);
-    ctx.arcTo(x, y, x + radius, y, radius);
-    ctx.closePath();
-    ctx.fillStyle = fillColor;
-    ctx.fill();
 }
 
 function switchPlayer() {
