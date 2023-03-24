@@ -339,7 +339,7 @@ function drawGrid(cellSize, cellColor, lineWidth, width, height) {
 }
 
 function drawSceneGame() {
-    boardData["width"] = Math.min(canvas.width, canvas.height) * 0.8;
+    boardData["width"] = Math.min(canvas.width, canvas.height) * 0.95;
     boardData["x"] = canvas.width / 2;
     boardData["y"] = canvas.height / 2;
 
@@ -347,9 +347,9 @@ function drawSceneGame() {
 
     drawText(ctx, `Режим: на двоих`, canvas.width * 0.01, fontSize, `bold ${fontSize}px sans-serif`, currentPlayer)
     drawText(ctx, `Ход игрока: ${currentPlayer}`, canvas.width * 0.01, fontSize * 2, `bold ${fontSize}px sans-serif`, currentPlayer)
-    drawText(ctx, "Подсказка: ", canvas.width * 0.01, canvas.height - fontSize * 3, `${fontSize}px sans-serif`, currentPlayer)
-    drawText(ctx, "Соедини противоположные", canvas.width * 0.01, canvas.height - fontSize*2, `${fontSize}px sans-serif`, currentPlayer)
-    drawText(ctx, "стороны своего цвета, чтобы победить.", canvas.width * 0.01, canvas.height - fontSize, `${fontSize}px sans-serif`, currentPlayer)
+    drawText(ctx, "Подсказка: ", canvas.width * 0.01, canvas.height - fontSize * 3, `${fontSize * 0.85}px sans-serif`, currentPlayer)
+    drawText(ctx, "Соедини противоположные", canvas.width * 0.01, canvas.height - fontSize * 2, `${fontSize * 0.85}px sans-serif`, currentPlayer)
+    drawText(ctx, "стороны своего цвета, чтобы победить.", canvas.width * 0.01, canvas.height - fontSize, `${fontSize * 0.85}px sans-serif`, currentPlayer)
 }
 
 function drawSceneGameWin() {
